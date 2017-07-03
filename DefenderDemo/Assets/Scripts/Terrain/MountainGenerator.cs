@@ -6,7 +6,7 @@ public class MountainGenerator : MonoBehaviour
 {
     protected int Segments = 20;
     protected float SegmentWidth = 2;
-    protected float MaxHeight = 5;
+    protected float MaxHeight = 2;
 
     public Material MountainMaterial = null;
 
@@ -23,7 +23,7 @@ public class MountainGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        HandleTerrainWrapping(MToolBox.GM.MyPlayer);
     }
 
     void OnDestroy()
@@ -38,9 +38,8 @@ public class MountainGenerator : MonoBehaviour
 
     protected void GenerateContinuousMountains()
     {
-        int twisterSeed = 14;
+        int twisterSeed = Random.Range(int.MinValue, int.MaxValue);
         _twister = new MersenneTwister(twisterSeed);
-        // hardcoded for now
         float currentHeight = -1.0f;
         float startHeight = Twister.NextSingle() * MaxHeight;
 
@@ -60,13 +59,20 @@ public class MountainGenerator : MonoBehaviour
             MountainSection section = new MountainSection();
             section.SetParentGenerator(this);
             section.SegmentWidth = SegmentWidth;
-            section.SegmentStartX = i * SegmentWidth;
+            section.SegmentStartX = (-SegmentWidth * (Segments / 2)) + i * SegmentWidth;
             if (i == 0)
                 currentHeight = section.CreateSection(startHeight, -1, false, MaxHeight);
             else if (i < (Segments - 1))
                 currentHeight = section.CreateSection(currentHeight, -1, false, MaxHeight);
             else
                 currentHeight = section.CreateSection(currentHeight, startHeight, true, MaxHeight);
+
+            MToolBox.IM.RegisterTerrain(section.gameObject);
         }
+    }
+
+    protected void HandleTerrainWrapping(Player focus)
+    {
+
     }
 }
