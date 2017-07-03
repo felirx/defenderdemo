@@ -19,9 +19,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4062070209506038}
-  - component: {fileID: 114283376852243002}
   - component: {fileID: 61329504771770846}
   - component: {fileID: 50152585236361930}
+  - component: {fileID: 114006408658399414}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -39,7 +39,7 @@ GameObject:
   - component: {fileID: 4276455532801146}
   - component: {fileID: 212407617256871810}
   m_Layer: 0
-  m_Name: PlayerGFX
+  m_Name: GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52,7 +52,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1540016909909784}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.158, y: 3, z: 0}
+  m_LocalPosition: {x: -3.653, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4276455532801146}
@@ -67,7 +67,7 @@ Transform:
   m_GameObject: {fileID: 1924601958757452}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 2, z: 1}
+  m_LocalScale: {x: 5, y: 5, z: 1}
   m_Children: []
   m_Father: {fileID: 4062070209506038}
   m_RootOrder: 0
@@ -115,9 +115,9 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.7, y: 0.3}
+  m_Size: {x: 0.7, y: 0.7}
   m_EdgeRadius: 0
---- !u!114 &114283376852243002
+--- !u!114 &114006408658399414
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -125,7 +125,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1540016909909784}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5601b8e1791d0254f8664b8dd5a575dc, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c7a790385690f846a5d4ff2926655d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!212 &212407617256871810
@@ -161,7 +161,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

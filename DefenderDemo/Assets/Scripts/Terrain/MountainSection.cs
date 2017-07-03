@@ -153,7 +153,7 @@ public class MountainSection
         _gameObject.transform.position = new Vector3(SegmentStartX, 0.0f);
 
         PolygonCollider2D pc2d = _gameObject.AddComponent<PolygonCollider2D>();
-        RenderPolygonCollider2d rpc2d = _gameObject.AddComponent<RenderPolygonCollider2d>();
+        _gameObject.AddComponent<RenderPolygonCollider2d>();
 
         // add space for 2 more corner points
         Vector2[] shape = new Vector2[points.Count + 2];
@@ -165,6 +165,7 @@ public class MountainSection
         shape[points.Count] = new Vector2(SegmentWidth, GroundHeight);
         shape[points.Count + 1] = new Vector2(0, GroundHeight);
 
+        pc2d.enabled = false;
         pc2d.SetPath(0, shape);
     }
 }
