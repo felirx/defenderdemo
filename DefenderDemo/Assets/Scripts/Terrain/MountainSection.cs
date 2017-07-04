@@ -80,8 +80,10 @@ public class MountainSection
                 // break out of the loop if we're going to create the end seam
                 // will create slopes steeper then allowed for now
                 if (i == xPositions.Count - 1)
+                {
                     points.Add(new Vector2(SegmentWidth, endHeight));
-                continue;
+                    continue;
+                }
             }
 
             float yPos = 0.0f;

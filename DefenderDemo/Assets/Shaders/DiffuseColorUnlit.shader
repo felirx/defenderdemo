@@ -1,4 +1,6 @@
-﻿Shader "Custom/Diffuse color unlit"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Diffuse color unlit"
 {
 	Properties
 	{
@@ -45,7 +47,7 @@
 			v2f vert(appdata i)
 			{
 				v2f o;
-				o.pos = mul(UNITY_MATRIX_MVP, i.vertex);
+				o.pos = UnityObjectToClipPos(i.vertex);
 				
 				o.uv0 = TRANSFORM_TEX(i.texcoord, _MainTex);
 				
