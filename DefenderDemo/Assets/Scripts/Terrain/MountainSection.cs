@@ -150,10 +150,10 @@ public class MountainSection
         _gameObject = new GameObject();
         _gameObject.transform.parent = parentGenerator.transform;
         _gameObject.transform.rotation = Quaternion.identity;
-        _gameObject.transform.position = new Vector3(SegmentStartX, 0.0f);
+        _gameObject.transform.position = new Vector3(SegmentStartX, parentGenerator.transform.position.y, parentGenerator.transform.position.z);
 
         PolygonCollider2D pc2d = _gameObject.AddComponent<PolygonCollider2D>();
-        _gameObject.AddComponent<RenderPolygonCollider2d>();
+        RenderPolygonCollider2d rp2d = _gameObject.AddComponent<RenderPolygonCollider2d>();
 
         // add space for 2 more corner points
         Vector2[] shape = new Vector2[points.Count + 2];
@@ -167,5 +167,7 @@ public class MountainSection
 
         pc2d.enabled = false;
         pc2d.SetPath(0, shape);
+
+        rp2d.materialToUse = MountainMaterial;
     }
 }

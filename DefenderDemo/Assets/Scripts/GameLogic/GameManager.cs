@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public float WorldHeight { get { return _WorldHeight; } }
 
     protected MountainGenerator terrainGen = null;
+    protected MountainGenerator backgroundGen = null;
 
     protected MersenneTwister SpawnTwister = null;
     protected PGeneric.Utilities.Timer SpawnTimer = new PGeneric.Utilities.Timer();
@@ -28,17 +29,39 @@ public class GameManager : MonoBehaviour
     protected const float BaseSpawnInterval = 1000.0f;
     protected GameObject EnemyPrefab = null;
     protected GameObject EnemyContainer = null;
+    protected GameObject PlayerPrefab = null;
+    protected GameObject ProjectilePrefab = null;
+    protected GameObject ProjectileContainer = null;
+
+    public int GameScore
+    {
+        get; set;
+    }
 
     public void Init()
     {
         Debug.Log("Initializing Game Manager");
 
-        terrainGen = FindObjectOfType<MountainGenerator>();
-        if (terrainGen)
+        GameObject go = GameObject.Find("MountainGenerator");
+        if (go)
         {
-            // magic numbers ahoy
-            terrainGen.GenerateTerrain(20, 2, 2);
-            _WorldWidth = 40.0f;
+            terrainGen = go.GetComponent<MountainGenerator>();
+            if (terrainGen)
+            {
+                // magic numbers ahoy
+                terrainGen.GenerateTerrain(20, 2, 2);
+                _WorldWidth = 40.0f;
+            }
+        }
+        go = GameObject.Find("BackgroundMountains");
+        if (go)
+        {
+            backgroundGen = go.GetComponent<MountainGenerator>();
+            if (backgroundGen)
+            {
+                // magic numbers ahoy
+                backgroundGen.GenerateTerrain(40, 2, 10);
+            }
         }
 
         EnemyPrefab = Resources.Load<GameObject>("Prefabs/Enemy");
@@ -46,21 +69,46 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("Could not load Enemy Prefab");
         }
+
+        PlayerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+        if (null == PlayerPrefab)
+        {
+            Debug.LogError("Could not load Player Prefab");
+            return;
+        }
+        go = GameObject.Instantiate<GameObject>(PlayerPrefab, Vector3.up * 3.0f, Quaternion.identity);
+        if (null == go)
+        {
+            Debug.LogError("Could not instantiate Player Prefab");
+            return;
+        }
+        _player = go.GetComponent<Player>();
+        if (null == MyPlayer)
+        {
+            Debug.LogError("Could not find player component");
+            return;
+        }
+
+        ProjectilePrefab = Resources.Load<GameObject>("Prefabs/Projectile");
+        if (null == ProjectilePrefab)
+        {
+            Debug.LogError("Could not load Projectile Prefab");
+        }
+
+        // parent the camera
+        Camera.main.transform.parent = go.transform;
+        Camera.main.transform.localRotation = Quaternion.identity;
+        Camera.main.transform.localPosition = new Vector3(0.0f, 1.0f, -10.0f);
+
+        // reset score
+        GameScore = 0;
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
         if (null == MyPlayer)
-        {
-            // shit solution
-            _player = FindObjectOfType<Player>();
-            if (null == MyPlayer)
-            {
-                Debug.LogError("Could not find player");
-                return;
-            }
-        }
+            return;
 
         // did the player go past reset distance?
         Vector3 playerX = new Vector3(MyPlayer.transform.position.x, 0.0f, 0.0f);
@@ -83,9 +131,47 @@ public class GameManager : MonoBehaviour
         HandleEnemySpawns();
     }
 
+    public void PlayerDeath()
+    {
+        // deparent camera
+        Camera.main.transform.parent = null;
+
+        GameObject.Destroy(MyPlayer.gameObject);
+        _player = null; // stops enemies from moving and spawning
+    }
+
+    public void SpawnProjectile(GameObject owner, Vector3 pos, Vector3 dir, float vel, float life)
+    {
+        GameObject go = GameObject.Instantiate<GameObject>(ProjectilePrefab, pos, Quaternion.identity);
+        if (null == go)
+        {
+            Debug.LogError("Could not instantiate projectile prefab");
+            return;
+        }
+        Projectile p = go.GetComponent<Projectile>();
+        if (null == p)
+        {
+            Debug.LogError("Could not get projectile component");
+            GameObject.Destroy(go);
+            return;
+        }
+
+        if (null == ProjectileContainer)
+            ProjectileContainer = new GameObject("ProjectileContainer");
+
+        p.gameObject.transform.parent = ProjectileContainer.transform;
+        p.gameObject.layer = owner.layer;
+        p.Direction = dir;
+        p.Velocity = vel;
+        p.LifeTime = life;
+    }
+
     protected void HandleEnemySpawns()
     {
         if (null == EnemyPrefab)
+            return;
+
+        if (null == _player)
             return;
 
         if (null == SpawnTwister)
@@ -108,8 +194,7 @@ public class GameManager : MonoBehaviour
             GameObject go = GameObject.Instantiate(EnemyPrefab, new Vector3(-WorldWidth * 0.5f + SpawnTwister.NextSingle() * WorldWidth, SpawnTwister.NextSingle() * WorldHeight, 0.0f), Quaternion.identity, EnemyContainer.transform);
 
             // increase spawn rate until enough time has passed, should be pretty crazy
-            float enduranceFactor = 1.0f - Mathf.Clamp(TimeSinceStart / (5.0f * 60.0f * 10000.0f), 0.0f, 0.8f);
-            Debug.Log(enduranceFactor);
+            float enduranceFactor = 1.0f - Mathf.Clamp(TimeSinceStart / (2.0f * 60.0f * 1000.0f), 0.0f, 0.8f);
             SpawnTimer.Start((BaseSpawnInterval + BaseSpawnInterval * SpawnTwister.NextSingle()) * enduranceFactor);
         }
     }

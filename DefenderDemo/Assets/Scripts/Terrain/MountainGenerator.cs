@@ -68,6 +68,7 @@ public class MountainGenerator : MonoBehaviour
         {
             MountainSection section = new MountainSection();
             section.SetParentGenerator(this);
+            section.MountainMaterial = MountainMaterial;
             section.SegmentWidth = SegmentWidth;
             section.SegmentStartX = (-SegmentWidth * (Segments / 2)) + i * SegmentWidth;
             if (i == 0)
@@ -76,7 +77,6 @@ public class MountainGenerator : MonoBehaviour
                 currentHeight = section.CreateSection(currentHeight, -1, false, MaxHeight);
             else
                 currentHeight = section.CreateSection(currentHeight, startHeight, true, MaxHeight);
-
             Mountains.Add(section);
 
             MToolBox.IM.RegisterTerrain(section.gameObject);
@@ -114,6 +114,7 @@ public class MountainGenerator : MonoBehaviour
     protected void WrapSection(int index, bool left)
     {
         // really lazy way of handling the data...
+        // should be a linked list or a more suitable data structure
         MountainSection ms = Mountains[index];
         MountainSection newNeighbor = null;
         Mountains.RemoveAt(index);
