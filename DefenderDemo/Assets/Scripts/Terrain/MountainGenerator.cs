@@ -32,7 +32,7 @@ public class MountainGenerator : MonoBehaviour
 
     void OnDestroy()
     {
-        MToolBox.GM.OnWorldWrappingUpdate -= HandleTerrainWrapping;
+        //MToolBox.GM.OnWorldWrappingUpdate -= HandleTerrainWrapping;
         for (int i = 0; i < Mountains.Count; ++i)
         {
             if (null != Mountains[i])
@@ -108,6 +108,11 @@ public class MountainGenerator : MonoBehaviour
     protected bool DistanceCheck(MountainSection ms, Vector2 focus, float MaxDistance)
     {
         float dist = Mathf.Abs(ms.gameObject.transform.position.x - focus.x);
+        // parallax adjustment
+        // magic math
+        float depth = ms.gameObject.transform.position.z;
+        if (depth > 0.0f)
+            dist -= depth;
         return MaxDistance < dist;
     }
 

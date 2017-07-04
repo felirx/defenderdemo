@@ -11,21 +11,13 @@ public class UpdateUIScore : MonoBehaviour
     void Start ()
     {
         label = GetComponent<UnityEngine.UI.Text>();
-
-        UpdateScore();
     }
-	
-	// Update is called once per frame
-	void Update ()
-    {
-        UpdateScore();
-	}
 
-    protected void UpdateScore()
+    public void UpdateScore(int score)
     {
         if (label)
         {
-            label.text = MToolBox.GM.GameScore.ToString();
+            label.text = score.ToString();
         }
     }
 }

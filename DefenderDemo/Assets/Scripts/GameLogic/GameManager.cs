@@ -33,13 +33,44 @@ public class GameManager : MonoBehaviour
     protected GameObject ProjectilePrefab = null;
     protected GameObject ProjectileContainer = null;
 
-    public int GameScore
+    protected GameObject UICameraPrefab = null;
+    protected GameObject UIHudPrefab = null;
+    protected GameObject UIDeathScreen = null;
+    protected UpdateUIScore UIScore = null;
+
+    protected bool Initialized = false;
+
+    // UI inputs
+    public Vector2 UIInputAxis
     {
         get; set;
     }
 
+    protected int _GameScore = 0;
+    public int GameScore
+    {
+        get
+        {
+            return _GameScore;
+        }
+        set
+        {
+            _GameScore = value;
+            if (UIScore)
+                UIScore.UpdateScore(_GameScore);
+        }
+    }
+
+    public void Start()
+    {
+        Init();
+    }
+
     public void Init()
     {
+        if (Initialized)
+            return;
+
         Debug.Log("Initializing Game Manager");
 
         GameObject go = GameObject.Find("MountainGenerator");
@@ -102,6 +133,10 @@ public class GameManager : MonoBehaviour
 
         // reset score
         GameScore = 0;
+
+        LoadUI();
+
+        Initialized = true;
     }
 	
 	// Update is called once per frame
@@ -138,6 +173,9 @@ public class GameManager : MonoBehaviour
 
         GameObject.Destroy(MyPlayer.gameObject);
         _player = null; // stops enemies from moving and spawning
+
+        if (UIDeathScreen)
+            UIDeathScreen.SetActive(true);
     }
 
     public void SpawnProjectile(GameObject owner, Vector3 pos, Vector3 dir, float vel, float life)
@@ -166,6 +204,39 @@ public class GameManager : MonoBehaviour
         p.LifeTime = life;
     }
 
+    protected void LoadUI()
+    {
+        UICameraPrefab = Resources.Load<GameObject>("Prefabs/UI/UICamera");
+        if (null == UICameraPrefab)
+        {
+            Debug.LogError("Could not load UICamera Prefab");
+            return;
+        }
+
+        UIHudPrefab = Resources.Load<GameObject>("Prefabs/UI/Hud");
+        if (null == UIHudPrefab)
+        {
+            Debug.LogError("Could not load UIHud Prefab");
+            return;
+        }
+
+        GameObject uiCam = GameObject.Instantiate(UICameraPrefab);
+        if (!uiCam)
+            return;
+
+        Transform canvas = PGeneric.Utilities.FindUtilities.SearchHierarchyForTransform(uiCam.transform, "Canvas");
+        if (!canvas)
+            return;
+
+        GameObject.Instantiate(UIHudPrefab, canvas);
+
+        Transform t = PGeneric.Utilities.FindUtilities.SearchHierarchyForTransform(uiCam.transform, "DeathContainer");
+        if (t)
+            UIDeathScreen = t.gameObject;
+
+        UIScore = PGeneric.Utilities.FindUtilities.SearchHierarchyForComponent<UpdateUIScore>(uiCam.transform, "ScoreText");
+    }
+
     protected void HandleEnemySpawns()
     {
         if (null == EnemyPrefab)
@@ -176,7 +247,7 @@ public class GameManager : MonoBehaviour
 
         if (null == SpawnTwister)
         {
-            SpawnTwister = new MersenneTwister(14);
+            SpawnTwister = new MersenneTwister(Random.Range(int.MinValue, int.MaxValue));
             TimeSinceStart = 0.0f;
         }
 
@@ -191,7 +262,16 @@ public class GameManager : MonoBehaviour
 
         if (SpawnTimer.Tick(Time.deltaTime))
         {
-            GameObject go = GameObject.Instantiate(EnemyPrefab, new Vector3(-WorldWidth * 0.5f + SpawnTwister.NextSingle() * WorldWidth, SpawnTwister.NextSingle() * WorldHeight, 0.0f), Quaternion.identity, EnemyContainer.transform);
+            // reject spawn points that are too close to the player
+            float DistToPlayer = 0.0f;
+            Vector3 proposedSpawnPoint = Vector3.zero;
+            do
+            {
+                proposedSpawnPoint = new Vector3(-WorldWidth * 0.5f + SpawnTwister.NextSingle() * WorldWidth, SpawnTwister.NextSingle() * WorldHeight, 0.0f);
+                DistToPlayer = Vector3.Distance(MyPlayer.transform.position, proposedSpawnPoint);
+            } while (DistToPlayer < 5.0f);
+
+            GameObject.Instantiate(EnemyPrefab, proposedSpawnPoint, Quaternion.identity, EnemyContainer.transform);
 
             // increase spawn rate until enough time has passed, should be pretty crazy
             float enduranceFactor = 1.0f - Mathf.Clamp(TimeSinceStart / (2.0f * 60.0f * 1000.0f), 0.0f, 0.8f);

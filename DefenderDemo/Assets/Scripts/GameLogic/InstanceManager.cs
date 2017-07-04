@@ -4,60 +4,43 @@ using UnityEngine;
 
 public class InstanceManager
 {
-    protected List<GameObject> _Enemies = new List<GameObject>();
-    protected List<GameObject> _Players = new List<GameObject>();
-    protected List<GameObject> _Civilians = new List<GameObject>();
+    protected List<Actor> _Actors = new List<Actor>();
     protected List<GameObject> _Terrains = new List<GameObject>();
-    protected List<GameObject> _Projectiles = new List<GameObject>();
 
-    public List<GameObject> Enemies { get { return _Enemies; } }
-    public List<GameObject> Players { get { return _Players; } }
-    public List<GameObject> Civilians { get { return _Civilians; } }
+    public List<Actor> Enemies { get { return _Actors; } }
     public List<GameObject> Terrains { get { return _Terrains; } }
-    public List<GameObject> Projectiles { get { return _Projectiles; } }
 
-    public void Init()
+    public void RegisterActor(Actor go)
     {
-        Debug.Log("Initializing Instance Manager");
+        if (_Actors.Contains(go))
+        {
+            Debug.LogError("Already registered " + go);
+            return;
+        }
+
+        _Actors.Add(go);
     }
 
-    public void DropAllReferences()
+    public void RemoveActor(Actor go)
     {
-        // ???
-        _Enemies.Clear();
-        _Players.Clear();
-        _Civilians.Clear();
-        _Terrains.Clear();
+        if (!_Actors.Contains(go))
+        {
+            Debug.LogError(go + " Not registered");
+            return;
+        }
+        _Actors.Remove(go);
     }
 
-    public void RegisterEnemy(GameObject go)
+    public void DestroyAllActors()
     {
-        AddGameObject(go, _Enemies);
-    }
-
-    public void RemoveEnemy(GameObject go)
-    {
-        RemoveGameObject(go, _Enemies);
-    }
-
-    public void RegisterPlayer(GameObject go)
-    {
-        AddGameObject(go, _Players);
-    }
-
-    public void RemovePlayer(GameObject go)
-    {
-        RemoveGameObject(go, _Players);
-    }
-
-    public void RegisterCivilian(GameObject go)
-    {
-        AddGameObject(go, _Civilians);
-    }
-
-    public void RemoveCivilian(GameObject go)
-    {
-        RemoveGameObject(go, _Civilians);
+        for (int i = 0; i < _Actors.Count; ++i)
+        {
+            if (_Actors[i])
+            {
+                GameObject.Destroy(_Actors[i].gameObject);
+            }
+        }
+        _Actors.Clear();
     }
 
     public void RegisterTerrain(GameObject go)
@@ -70,15 +53,6 @@ public class InstanceManager
         RemoveGameObject(go, _Terrains);
     }
 
-    public void RegisterProjectile(GameObject go)
-    {
-        AddGameObject(go, _Projectiles);
-    }
-
-    public void RemoveProjectile(GameObject go)
-    {
-        RemoveGameObject(go, _Projectiles);
-    }
 
     protected void AddGameObject(GameObject go, List<GameObject> l)
     {

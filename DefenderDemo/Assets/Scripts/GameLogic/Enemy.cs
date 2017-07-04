@@ -11,7 +11,7 @@ public class Enemy : Actor
 	// Use this for initialization
 	void Start ()
     {
-        MToolBox.IM.RegisterEnemy(gameObject);
+        MToolBox.IM.RegisterActor(this);
         // MToolBox.GM.OnWorldWrappingUpdate += HandleWrapping;
 
         ProjectileTimer.Start(FireRate);
@@ -43,7 +43,7 @@ public class Enemy : Actor
 
     public void Die()
     {
-        MToolBox.IM.RemoveEnemy(gameObject);
+        MToolBox.IM.RemoveActor(this);
         GameObject.Destroy(gameObject);
     }
 

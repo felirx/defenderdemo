@@ -22,7 +22,7 @@ public class Projectile : Actor
     protected SpriteRenderer gfx = null;
     void Start()
     {
-        MToolBox.IM.RegisterProjectile(gameObject);
+        MToolBox.IM.RegisterActor(this);
 
         gfx = PGeneric.Utilities.FindUtilities.SearchHierarchyForComponent<SpriteRenderer>(transform, "GFX");
 
@@ -68,13 +68,12 @@ public class Projectile : Actor
 
     public void Die()
     {
-        MToolBox.IM.RemoveProjectile(gameObject);
+        MToolBox.IM.RemoveActor(this);
         GameObject.Destroy(gameObject);
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        // just die away unless we collided with scene borders
         Die();
     }
 }

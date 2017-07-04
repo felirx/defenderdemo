@@ -20,7 +20,6 @@ public class Actor : MonoBehaviour
 
     protected void HandleWrapping(Vector2 focus, float maxDistance, bool left)
     {
-        Vector2 myXpos = new Vector2(transform.position.x, 0.0f);
         if (Mathf.Abs(transform.position.x - focus.x) > maxDistance)
         {
             Vector3 pos = transform.position;

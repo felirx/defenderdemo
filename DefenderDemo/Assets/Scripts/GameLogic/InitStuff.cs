@@ -8,6 +8,5 @@ public class InitStuff : MonoBehaviour
 	void Start ()
     {
         MToolBox.GM.Init();
-        MToolBox.IM.Init();
 	}	
 }

@@ -6,11 +6,16 @@ public class Player : Actor
 {
     protected float CameraPeekAheadDist = 4.0f;
     protected PGeneric.Utilities.Timer FireTimer = new PGeneric.Utilities.Timer();
-    protected float FireRate = 100.0f;
+    protected float FireRate = 400.0f;
+
+    protected SpriteRenderer Graphic = null;
+    protected bool GoingLeft = false;
     // Use this for initialization
     void Start()
     {
-        MToolBox.IM.RegisterPlayer(gameObject);
+        MToolBox.IM.RegisterActor(this);
+
+        Graphic = PGeneric.Utilities.FindUtilities.SearchHierarchyForComponent<SpriteRenderer>(transform, "GFX");
     }
 
     // Update is called once per frame
@@ -21,9 +26,41 @@ public class Player : Actor
         float xAxis = Input.GetAxis("Horizontal");
         float yAxis = Input.GetAxis("Vertical");
 
-        rigidBody.velocity = 5.0f * new Vector2(xAxis, yAxis);
+        Vector2 unityAxis = new Vector2(xAxis, yAxis);
+        Vector2 uiAxis = MToolBox.GM.UIInputAxis;
+        Vector2 finalAxis = Vector2.zero;
 
-        bool left = xAxis < 0.0f;
+        // UI axis should have priority
+        if (uiAxis.magnitude > 0.05f)
+        {
+            finalAxis.x = uiAxis.x;
+            finalAxis.y = uiAxis.y;
+        }
+        else if (unityAxis.magnitude > 0.05f)
+        {
+            finalAxis.x = unityAxis.x;
+            finalAxis.y = unityAxis.y;
+        }
+
+        rigidBody.velocity = 5.0f * finalAxis;
+
+        if (Graphic)
+        {
+            if (finalAxis.magnitude > 0.05f)
+            {
+                if (finalAxis.x > 0.0f)
+                {
+                    Graphic.transform.rotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+                    GoingLeft = false;
+                }
+                else
+                {
+                    Graphic.transform.rotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+                    GoingLeft = true;
+                }
+            }
+        }
+        bool left = finalAxis.x < 0.0f;
 
         if (Camera.main)
         {
@@ -41,14 +78,20 @@ public class Player : Actor
             Camera.main.transform.localPosition = camPos;
         }
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButton("Fire1"))
         {
-            if (FireTimer.Ticked() || !FireTimer.Started())
-            {
-                FireTimer.Start(FireRate);
+            Fire();
+        }
+    }
 
-                MToolBox.GM.SpawnProjectile(gameObject, gameObject.transform.position + gameObject.transform.right * 0.5f, gameObject.transform.right, 10.0f, 50000.0f);
-            }
+    public void Fire()
+    {
+        if (FireTimer.Ticked() || !FireTimer.Started())
+        {
+            FireTimer.Start(FireRate);
+
+            Vector3 dir = GoingLeft ? -gameObject.transform.right : gameObject.transform.right;
+            MToolBox.GM.SpawnProjectile(gameObject, gameObject.transform.position + dir * 0.5f, dir, 10.0f, 3000.0f);
         }
     }
 
@@ -57,6 +100,7 @@ public class Player : Actor
         // spawn death particles
 
         // signal the game manager
+        MToolBox.IM.RemoveActor(this);
         MToolBox.GM.PlayerDeath();
     }
 

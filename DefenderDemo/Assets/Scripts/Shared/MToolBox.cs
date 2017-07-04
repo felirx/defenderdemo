@@ -51,7 +51,6 @@ public static class MToolBox
                     GameObject ob = new GameObject("GameManager");
                     gm = ob.AddComponent<GameManager>();
                     RegisterTool(SlimeTool.GameManager, gm);
-                    GameObject.DontDestroyOnLoad(ob);
                 }
             }
             return GetTool<GameManager>(SlimeTool.GameManager);

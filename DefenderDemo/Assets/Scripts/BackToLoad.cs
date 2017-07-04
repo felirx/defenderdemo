@@ -8,6 +8,8 @@ public class BackToLoad : MonoBehaviour, IPointerDownHandler
 {
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
+        MToolBox.IM.DestroyAllActors();
+        MToolBox.ClearTools();
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }
